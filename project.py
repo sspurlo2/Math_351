@@ -2,27 +2,45 @@ import random
 import time
 import numpy as np  # for precise_arctans
 
+PI = 3.1415926535897932384
+
 
 def taylor(x):
     """
-    Computes arctan(x) using Taylor series expansion.
-    For |x| < 1: arctan(x) = x - x³/3 + x⁵/5 - x⁷/7 + ...
-    For |x| >= 1: uses identity arctan(x) = sign(x) * π/2 - arctan(1/x)
+    Computes arctan(x) using Taylor series expansion with range reduction.
+    For x < 0: arctan(-x) = -arctan(x)
+    For x <= 0.5: computes Taylor series directly via taylor_core
+    For 0.5 < x <= 1: arctan(x) = pi/4 + arctan((x-1)/(x+1))
+    For x > 1: arctan(x) = pi/2 - arctan(1/x)
     """
-    # Handle large values using identity
-    if abs(x) > 1:
-        sign = 1 if x > 0 else -1
-        return sign * np.pi / 2 - taylor(1 / x)
+    if x < 0:
+        return -taylor(-x)
     
-    # Taylor series for |x| < 1
+    # Handle large values: arctan(x) = pi/2 - arctan(1/x)
+    if x > 1:
+        return PI / 2 - taylor(1 / x)
+    
+    # For 0.5 < x <= 1: arctan(x) = pi/4 + arctan((x-1)/(x+1))
+    if x > 0.5:
+        y = (x - 1) / (x + 1)
+        return PI / 4 + taylor_core(y)
+
+    return taylor_core(x)
+
+
+def taylor_core(x):
+    """
+    Computes arctan(x) using Taylor series for |x| <= 0.5.
+    Series: arctan(x) = x - x³/3 + x⁵/5 - x⁷/7 + ...
+    """
     result = 0.0
     term = x
     n = 1
-    
-    # Compute terms until convergence (terms become very small)
+
     for i in range(100):  # Max iterations to prevent infinite loops
-        result += term / n
-        if abs(term / n) < 1e-15:  # Convergence threshold
+        contribution = term / n
+        result += contribution
+        if abs(contribution) < 1e-17:  # Convergence threshold
             break
         term *= -x * x
         n += 2
@@ -63,5 +81,7 @@ if __name__ == "__main__":
     
     runtime = end - start
     error = [abs(precise_arctans[i] - output[i]) for i in range(10**6)]
-    
+    missed = [i for i in range(len(error)) if np.abs(error[i]) > 10**(-15)]
+    print(missed)
+
     print(f"Runtime: {runtime:.4f} seconds")
