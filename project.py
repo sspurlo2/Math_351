@@ -4,7 +4,7 @@
 
 import random
 import time
-import numpy as np  # for precise arctan calculation ONLY
+import numpy as np  # used in __main__ for precise arctan calculation ONLY
 
 """
 Strategy: arctan(x) = x - x^3/3 + x^5/5 - x^7/7 + ...
@@ -32,22 +32,23 @@ def taylor_coeffs_generator(n: int):
         denom += 2.0  # Increment denominator by 2
 
 
+def machin_series(x: float, n: int) -> float:
+    """
+    Computes arctan(x) using Taylor (Maclaurin) series with n_terms.
+    arctan(x) = x - x^3/3 + x^5/5 - x^7/7 + ...
+    """
+    res, term, x_squared = 0.0, x, x * x
+    for coeff in taylor_coeffs_generator(n):
+        res += coeff * term
+        term *= x_squared
+    return res
+
+
 def compute_pi() -> float:
     """
     Calculates pi to 15 decimal places of precision using Machin's formula:
     pi ~ 16*arctan(1/5) - 4*arctan(1/239)
     """
-    def machin_series(x: float, n: int) -> float:
-        """
-        Computes arctan(x) using Taylor (Maclaurin) series with n_terms.
-        arctan(x) = x - x^3/3 + x^5/5 - x^7/7 + ...
-        """
-        res, term, x_squared = 0.0, x, x * x
-        for coeff in taylor_coeffs_generator(n):
-            res += coeff * term
-            term *= x_squared
-        return res
-
     return 16.0 * machin_series(0.2, 10) - 4.0 * machin_series(1.0/239.0, 3)
 
 
