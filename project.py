@@ -17,6 +17,11 @@ Inside this interval, the Taylor series converges quickly.
 Large inputs (x > cotan(pi/8) ~ 2.4142): use identity arctan(x) = pi/2 - arctan(1/x)
 Medium inputs ([tan(pi/8) < x < cotan(pi/8)]~[0.4142 < x < 2.4142]): use identity arctan(x) = pi/4 + arctan((x-1)/(x+1))
 Small inputs (0 <= x <= tan(pi/8)~0.4142): use Taylor series directly
+
+Precomputed constants:
+- pi to 15 decimal places using Machin's formula
+- tan(pi/8) and cotan(pi/8) to 15 decimal places using unrolled Newton's method for sqrt(2)
+- 18 Taylor series coefficients of arctan(x)
 """
 
 
